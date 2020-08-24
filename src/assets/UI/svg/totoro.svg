@@ -1,0 +1,15 @@
+<svg id="totoro" xmlns="http://www.w3.org/2000/svg" width="152.347" height="152.166" viewBox="0 0 152.347 152.166">
+  <path id="Path_101" data-name="Path 101" d="M183.952,3.191,180.89.3l-3.062,2.887c-.422.4-10.328,9.9-10.328,24.076V31.73h8.927V50.146h8.927V31.73h8.927V27.267C194.28,13.091,184.373,3.588,183.952,3.191Z" transform="translate(-117.66 -0.304)" fill="#838d92"/>
+  <path id="Path_102" data-name="Path 102" d="M314.28,27.267c0-14.176-9.906-23.679-10.328-24.076L300.89.3l-3.062,2.887c-.422.4-10.328,9.9-10.328,24.076V31.73h8.927V54.738h8.927V31.73h8.927Z" transform="translate(-201.954 -0.304)" fill="#4f565b"/>
+  <path id="Path_103" data-name="Path 103" d="M269.676,175.8a49.15,49.15,0,0,0-48.8-49.092L206,175.8l14.878,65.461h48.8Z" transform="translate(-144.704 -89.097)" fill="#697176"/>
+  <path id="Path_104" data-name="Path 104" d="M75.877,126.7a49.078,49.078,0,0,0-46.955,34.71,17.941,17.941,0,0,0-9.473,15.765v2.881A40.009,40.009,0,0,0,0,214.474v26.78l38.087-25.22,38.087,25.22V126.7C76.074,126.7,75.976,126.7,75.877,126.7Z" transform="translate(0 -89.088)" fill="#838d92"/>
+  <path id="Path_105" data-name="Path 105" d="M38.087,346.938A38.13,38.13,0,0,0,0,385.025v10.937H76.173V385.025A38.13,38.13,0,0,0,38.087,346.938Z" transform="translate(0 -243.796)" fill="#fff0bc"/>
+  <rect id="Rectangle_86" data-name="Rectangle 86" width="63.081" height="8.927" transform="translate(89.266 103.142)"/>
+  <rect id="Rectangle_87" data-name="Rectangle 87" width="63.081" height="8.927" transform="translate(89.266 120.995)"/>
+  <circle id="Ellipse_15" data-name="Ellipse 15" cx="8.927" cy="8.927" r="8.927" transform="translate(58.023 66.597)" fill="#fff"/>
+  <g id="Group_70" data-name="Group 70" transform="translate(15.77 134.314)">
+    <rect id="Rectangle_88" data-name="Rectangle 88" width="8.927" height="8.927" fill="#838d92"/>
+    <rect id="Rectangle_89" data-name="Rectangle 89" width="8.927" height="8.927" transform="translate(17.853)" fill="#838d92"/>
+    <rect id="Rectangle_90" data-name="Rectangle 90" width="8.927" height="8.927" transform="translate(35.706)" fill="#838d92"/>
+  </g>
+</svg>

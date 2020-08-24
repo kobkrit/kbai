@@ -1,0 +1,88 @@
+{
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --port 8888",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@syncfusion/ej2-vue-layouts": "^17.1.51",
+    "axios": "^0.19.0",
+    "babel-helper-vue-jsx-merge-props": "^2.0.3",
+    "base64-image-upload": "^1.1.4",
+    "blockly": "^3.20191014.4",
+    "bootstrap": "^4.3.1",
+    "bootstrap-vue": "^2.0.0-rc.25",
+    "core-js": "^2.6.5",
+    "file-saver": "^2.0.2",
+    "jcrop": "^3.0.1",
+    "jquery": "^3.5.1",
+    "jquery-select-areas": "^0.1.0",
+    "jszip": "^3.2.2",
+    "node-blockly": "^1.2.2",
+    "rx-js": "0.0.0",
+    "splitpanes": "^1.14.2",
+    "sweetalert2": "^9.1.5",
+    "v-blockly": "^0.2.22",
+    "vue": "^2.6.10",
+    "vue-awesome": "^3.5.4",
+    "vue-axios": "^2.1.4",
+    "vue-crop-simple": "^2.1.0",
+    "vue-cropper": "^0.4.9",
+    "vue-cropperjs": "^4.0.0",
+    "vue-croppie": "^2.0.1",
+    "vue-directive-long-press": "^1.1.0",
+    "vue-grid-layout": "^2.3.4",
+    "vue-jcrop": "^1.0.3",
+    "vue-long-click": "0.0.4",
+    "vue-multipane": "^0.9.5",
+    "vue-nav-tabs": "^0.5.7",
+    "vue-router": "^3.3.4",
+    "vue-rx": "^6.2.0",
+    "vue-slick-carousel": "^1.0.6",
+    "vue-splitpane": "^1.0.4",
+    "vue2-crop": "^1.0.2",
+    "vuebar": "0.0.20",
+    "vuejs-clipper": "^1.1.0",
+    "vuex": "^3.1.1",
+    "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.8.0",
+    "@vue/cli-plugin-eslint": "^3.8.0",
+    "@vue/cli-service": "^3.8.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^7.1.0",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": 0
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

@@ -1,0 +1,566 @@
+<template>
+  <div style="height: 100vh; width: 100vw;">
+    <b-container class="bv-example-row" fluid>
+      <b-row fluid>
+        <b-col cols="2">
+          <div>
+            <b-button-group style="margin-top: 10px;">
+              <b-button
+                pill
+                v-longclick="() => onLeft()"
+                @click="onLeft"
+                style="padding-left: 20px;padding-right: 20px;"
+                class="btn-space"
+              >
+                <v-icon name="angle-left" scale="3" />
+              </b-button>
+
+              <b-button
+                pill
+                v-longclick="() => onForward()"
+                @click="onForward"
+                style="padding-left: 20px;padding-right: 20px;"
+                class="btn-space"
+              >
+                <v-icon name="angle-up" scale="3" />
+              </b-button>
+
+              <b-button
+                pill
+                v-longclick="() => onRight()"
+                @click="onRight"
+                style="padding-left: 20px;padding-right: 20px;"
+                class="btn-space"
+              >
+                <v-icon name="angle-right" scale="3" />
+              </b-button>
+            </b-button-group>
+          </div>
+
+          <div style="margin-top: 5px;">
+            <b-button-group>
+              <b-button
+                pill
+                v-longclick="() => onCCW()"
+                @click="onCCW"
+                style="padding-left: 16px;padding-right: 16px;"
+                class="btn-space"
+              >
+                <v-icon name="undo" scale="2" />
+              </b-button>
+              <b-button
+                pill
+                v-longclick="() => onBackward()"
+                @click="onBackward"
+                style="padding-left: 20px;padding-right: 20px;"
+                class="btn-space"
+              >
+                <v-icon name="angle-down" scale="3" />
+              </b-button>
+              <b-button
+                pill
+                v-longclick="() => onCW()"
+                @click="onCW"
+                style="padding-left: 16px;padding-right: 16px;"
+                class="btn-space"
+              >
+                <v-icon name="undo" scale="2" class="fa-flip-horizontal" />
+              </b-button>
+            </b-button-group>
+          </div>
+
+          <b-button
+            type="button"
+            pill
+            @click="getImage"
+            v-on:click.prevent
+            style="margin-top: 10px; padding-left: 16px;padding-right: 16px;"
+            class="btn-space"
+          >
+            Save File
+          </b-button>
+
+          <!--<b-button type='button' pill @click="createProject" v-on:click.prevent style="padding-left: 16px;padding-right: 16px;" class="btn-space">
+                    Create Project
+                </b-button>-->
+
+          <!--<b-button pill v-b-modal.modal-prevent-closing>Create Project</b-button>-->
+
+          <div>
+            {{ getProjectDir }}
+          </div>
+        </b-col>
+        <b-col cols="5" style="background-color:red">
+          <b-row>
+            <b-container fluid>
+              <b-img
+                crossorigin="anonymous"
+                ref="displayImage"
+                style="margin-top: 10px; width: 100%;"
+                :src="getImgSrc"
+                alt="Center image"
+              ></b-img>
+            </b-container>
+          </b-row>
+        </b-col>
+        <b-col cols="5" style="background-color:green">
+          <b-row>
+            <b-container fluid>
+              <canvas
+                rcrossorigin="anonymous"
+                ref="myCanvas"
+                style="margin-top: 10px;"
+                width="640px"
+                height="480px"
+              />
+            </b-container>
+          </b-row>
+        </b-col>
+      </b-row>
+
+      <!--<b-modal id="modal-prevent-closing" ref="modal" title="Enter project name" @show="resetModal" @hidden="resetModal" @ok="handleOk">
+            <form ref="form" @submit.stop.prevent="handleSubmit">
+                <b-form-group :state="nameState" label="Name" label-for="name-input" invalid-feedback="Name is required">
+                    <b-form-input id="name-input" v-model="projectDirIn" :state="nameState" required></b-form-input>
+                </b-form-group>
+            </form>
+        </b-modal>-->
+    </b-container>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+//import LongPress from 'vue-directive-long-press'
+
+//import VueAxios from 'vue-axios';
+import 'vue-awesome/icons'
+import VIcon from 'vue-awesome/components/Icon'
+import { mapGetters } from 'vuex'
+
+// var convert = require("xml-js");
+
+var axios_options = {
+    proxy: {
+        host: "127.0.0.1",
+        port: 3000
+    }
+};
+
+var axiosInstance = axios.create({
+  baseURL: `${location.protocol}//${location.hostname}:3000`,
+})
+
+export default {
+  name: 'Capture',
+  components: {
+    VIcon,
+  },
+  props: {},
+  created() {},
+  data() {
+    return {
+      ipAddress: '192.168.88.247',
+      connected: 'Disconnected',
+      teleop: null,
+      cmdVel: null,
+      rbServer: null,
+      imgSrc: null,
+      projectDirIn: '',
+      nameState: null,
+    }
+  },
+  methods: {
+    doNothing: function() {},
+    createProject: function() {
+      this.$store.dispatch('setProjectDir', 'myProject')
+    },
+    getImage: function() {
+      var c = this.$refs.myCanvas
+      var ctx = c.getContext('2d')
+      var img = this.$refs.displayImage
+      //const img = new Image();
+      //img.src = this.imgSrc
+      //img.onload = () => {
+      //    ctx.drawImage(img, 0, 0);
+      //};
+      ctx.drawImage(img, 0, 0)
+      //imgData64 = c.toDataURL()
+      //console.log(c.toDataURL());
+      this.$store.dispatch('uploadImage', c.toDataURL())
+
+      //return true
+    },
+    onForward: function() {
+      // var x = 0;
+      var y = 0
+      var z = 0
+      var pub = true
+      if (pub === true) {
+        // eslint-disable-next-line no-undef
+        var twist = new ROSLIB.Message({
+          angular: {
+            x: 0,
+            y: 0,
+            z: z,
+          },
+          linear: {
+            x: 0.1,
+            y: y,
+            z: z,
+          },
+        })
+        console.log(twist)
+
+        this.cmdVel.publish(twist)
+        console.log(this.cmdVel)
+      }
+    },
+
+    onBackward: function() {
+      // var x = 0;
+      var y = 0
+      var z = 0
+      var pub = true
+      if (pub === true) {
+        // eslint-disable-next-line no-undef
+        var twist = new ROSLIB.Message({
+          angular: {
+            x: 0,
+            y: 0,
+            z: z,
+          },
+          linear: {
+            x: -0.1,
+            y: y,
+            z: z,
+          },
+        })
+        console.log(twist)
+
+        this.cmdVel.publish(twist)
+        console.log(this.cmdVel)
+      }
+    },
+    onLeft: function() {
+      // var x = 0;
+      var y = 0
+      var z = 0
+      var pub = true
+      if (pub === true) {
+        // eslint-disable-next-line no-undef
+        var twist = new ROSLIB.Message({
+          angular: {
+            x: 0,
+            y: 0,
+            z: -0.3,
+          },
+          linear: {
+            x: 0.1,
+            y: y,
+            z: z,
+          },
+        })
+        console.log(twist)
+
+        this.cmdVel.publish(twist)
+        console.log(this.cmdVel)
+      }
+    },
+
+    onRight: function() {
+      // var x = 0;
+      var y = 0
+      var z = 0
+      var pub = true
+      if (pub === true) {
+        // eslint-disable-next-line no-undef
+        var twist = new ROSLIB.Message({
+          angular: {
+            x: 0,
+            y: 0,
+            z: 0.3,
+          },
+          linear: {
+            x: 0.1,
+            y: y,
+            z: z,
+          },
+        })
+        console.log(twist)
+
+        this.cmdVel.publish(twist)
+        console.log(this.cmdVel)
+      }
+    },
+    onCCW: function() {
+      // var x = 0;
+      var y = 0
+      var z = 0
+      var pub = true
+      if (pub === true) {
+        // eslint-disable-next-line no-undef
+        var twist = new ROSLIB.Message({
+          angular: {
+            x: 0,
+            y: 0,
+            z: 0.3,
+          },
+          linear: {
+            x: 0,
+            y: y,
+            z: z,
+          },
+        })
+        console.log(twist)
+
+        this.cmdVel.publish(twist)
+        console.log(this.cmdVel)
+      }
+    },
+
+    onCW: function() {
+      // var x = 0;
+      var y = 0
+      var z = 0
+      var pub = true
+      if (pub === true) {
+        // eslint-disable-next-line no-undef
+        var twist = new ROSLIB.Message({
+          angular: {
+            x: 0,
+            y: 0,
+            z: -0.3,
+          },
+          linear: {
+            x: 0,
+            y: y,
+            z: z,
+          },
+        })
+        console.log(twist)
+
+        this.cmdVel.publish(twist)
+        console.log(this.cmdVel)
+      }
+    },
+  },
+
+  directives: {},
+
+  mounted() {
+    let uri = 'getIP'
+    console.log('Start roslibjs')
+    // eslint-disable-next-line no-undef
+    this.rbServer = new ROSLIB.Ros()
+    this.rbServer.on('error', function(error) {
+      this.connected = 'Connection error' + error
+      console.log('Connection error')
+    })
+
+    this.rbServer.on(
+      'close',
+      function() {
+        this.connected = 'Disconnected event'
+        console.log('Connection closed')
+      }.bind(this),
+    )
+
+    this.rbServer.on(
+      'connection',
+      function() {
+        console.log('Connected to ROS')
+        this.connected = 'Connected'
+
+        // eslint-disable-next-line no-undef
+        this.cmdVel = new ROSLIB.Topic({
+          ros: this.rbServer,
+          name: '/cmd_vel',
+          messageType: 'geometry_msgs/Twist',
+        })
+
+        this.cmdVel.subscribe(
+          function(message) {
+            console.log('Received message on ' + ': ' + message.data)
+          }.bind(this),
+        )
+
+        this.$store.dispatch('setCmdVel', this.cmdVel)
+      }.bind(this),
+    )
+
+    
+
+    axiosInstance.get(uri, axios_options).then((response) => {
+      this.ipAddress = response.data.IP
+      this.imgSrc =
+        'http://' +
+        this.ipAddress +
+        ':8080/stream?topic=/output/image_raw&type=ros_compressed'
+      console.log(this.imgSrc)
+      this.rbServer.connect('ws://' + response.data.IP + ':9090')
+      console.log('ROS IP = ' + response.data.IP)
+    })
+
+    /*var teleop = new KEYBOARDTELEOP.Teleop({
+          ros : this.rbServer,
+          throttle : 0.1
+        });*/
+
+    window.addEventListener(
+      'keypress',
+      function(e) {
+        //console.log(e.keyCode);
+        var x = 0
+        var y = 0
+        var z = 0
+        var pub = true
+        var keyCode = e.keyCode
+
+        switch (keyCode) {
+          case 106:
+            // turn left
+            z = 0.3
+            break
+          case 111:
+            // strafe left
+            x = 0.12
+            z = 0.3
+            break
+
+          case 117:
+            // strafe left
+            x = 0.12
+            z = -0.3
+            break
+          case 105:
+            // up
+            x = 0.12
+            break
+          case 108:
+            // turn right
+            z = -0.3
+            break
+          case 44:
+            // down
+            x = -0.12
+            break
+          case 69:
+            // strafe right
+            y = -0.12
+            break
+          case 81:
+            // strafe left
+            y = 0.12
+            break
+          default:
+            pub = false
+        }
+
+        if (pub === true) {
+          // eslint-disable-next-line no-undef
+          var twist = new ROSLIB.Message({
+            angular: {
+              x: 0,
+              y: 0,
+              z: z,
+            },
+            linear: {
+              x: x,
+              y: y,
+              z: z,
+            },
+          })
+          console.log(twist)
+
+          this.cmdVel.publish(twist)
+          console.log(this.cmdVel)
+        }
+      }.bind(this),
+    )
+    /*
+        window.addEventListener(
+          "keypress",
+          function(e) {
+            console.log(e.keyCode);
+            var x = 0;
+            var y = 0;
+            var z = 0;
+            var pub = true;
+            var keyCode = e.keyCode;
+            var speed = 0.1
+            switch (keyCode) {
+              case 113:
+                // turn left
+                z = 0.3;
+                break;
+              case 119:
+                // up
+                x = 0.1;
+                break;
+              case 101:
+                // turn right
+                z = 0.3;
+                break;
+              case 115:
+                // down
+                x = -0.1;
+                break;
+              case 97:
+                // strafe right
+                y = 0.1;
+                break;
+              case 100:
+                // strafe left
+                y = 0.1;
+                break;
+              default:
+                pub = false;
+            }
+
+            if (pub === true) {
+              var twist = new ROSLIB.Message({
+                angular: {
+                  x: 0,
+                  y: 0,
+                  z: z
+                },
+                linear: {
+                  x: x,
+                  y: y,
+                  z: z
+                }
+              });
+              console.log(twist);
+              this.cmdVel.publish(twist);
+              console.log(this.cmdVel);
+            }
+          }.bind(this)
+        );*/
+
+    console.log('Started roslibjs')
+  },
+  computed: {
+    ...mapGetters(['getProjectDir']),
+    getImgSrc: function() {
+      return this.imgSrc
+    },
+    //getProjectDir() {
+    //    return this.$store.state.projectDir
+    //}
+  },
+}
+</script>
+
+<style lang="scss" scoped>
+#logo .fa-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.btn-space {
+  margin-right: 5px;
+}
+</style>

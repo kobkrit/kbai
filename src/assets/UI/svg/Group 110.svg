@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="155" height="153" viewBox="0 0 155 153">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_101" data-name="Rectangle 101" width="148" height="146" rx="57" transform="translate(26 53.124)" fill="#fff" stroke="#007e4e" stroke-width="11"/>
+    </clipPath>
+  </defs>
+  <g id="Group_110" data-name="Group 110" transform="translate(-3981 -1373)" style="mix-blend-mode: luminosity;isolation: isolate">
+    <rect id="Rectangle_18" data-name="Rectangle 18" width="146" height="144" rx="57" transform="translate(3990 1382)" fill="#fff"/>
+    <g id="Mask_Group_4" data-name="Mask Group 4" transform="translate(3955 1319.876)" opacity="0.66" clip-path="url(#clip-path)">
+      <g id="money_1_" data-name="money (1)" transform="translate(74.434 113.053)">
+        <path id="Path_125" data-name="Path 125" d="M0,396.649V378.308L48.461,367.93l48.461,10.377v18.342l-48.461,9.17Zm0,0" transform="translate(0 -329.008)" fill="#59c230"/>
+        <path id="Path_126" data-name="Path 126" d="M0,396.649V378.308L48.461,367.93l48.461,10.377v18.342l-48.461,9.17Zm0,0" transform="translate(0 -311.643)" fill="#59c230"/>
+        <path id="Path_127" data-name="Path 127" d="M0,319.879H96.922v21.588H0Zm0,0" transform="translate(0 -289.447)" fill="#9bd981"/>
+        <path id="Path_128" data-name="Path 128" d="M0,319.879H96.922v15.436H0Zm0,0" transform="translate(0 -260.891)" fill="#9bd981"/>
+        <path id="Path_129" data-name="Path 129" d="M0,455.852v13.595c0,4.62,1.943,8.364,4.34,8.364H92.583c2.4,0,4.34-3.744,4.34-8.364V455.852Zm0,0" transform="translate(0 -374.498)" fill="#9bd981"/>
+        <path id="Path_130" data-name="Path 130" d="M14.761,392.441,0,394.159V407.45l14.761,1.518Zm0,0" transform="translate(0 -342.21)" fill="#489f24"/>
+        <path id="Path_131" data-name="Path 131" d="M14.761,392.441,0,394.159V407.45l14.761,1.518Zm0,0" transform="translate(0 -324.845)" fill="#489f24"/>
+        <path id="Path_132" data-name="Path 132" d="M0,319.879H14.761v21.588H0Zm0,0" transform="translate(0 -289.447)" fill="#59c230"/>
+        <path id="Path_133" data-name="Path 133" d="M0,319.879H14.761v15.436H0Zm0,0" transform="translate(0 -260.891)" fill="#59c230"/>
+        <path id="Path_134" data-name="Path 134" d="M92.119,0H4.8C2.151,0,0,1.058,0,2.363V31.928c0,1.3,2.15,2.363,4.8,2.363H92.12c2.652,0,4.8-1.058,4.8-2.363V2.363c0-1.3-2.151-2.363-4.8-2.363Zm0,0" transform="translate(0)" fill="#59c230"/>
+        <path id="Path_135" data-name="Path 135" d="M8.359,31.928V2.363c0-1.3,2.866-2.363,6.4-2.363H6.4C2.866,0,0,1.058,0,2.363V31.928c0,1.3,2.866,2.363,6.4,2.363h8.359C11.225,34.291,8.359,33.233,8.359,31.928Zm0,0" transform="translate(0 0)" fill="#489f24"/>
+        <path id="Path_136" data-name="Path 136" d="M14.761,455.852H0v13.595c0,4.62,2.589,8.364,5.784,8.364h8.977Zm0,0" transform="translate(0 -374.498)" fill="#59c230"/>
+      </g>
+    </g>
+    <text id="coding" transform="translate(4063 1486)" fill="#333" font-size="18" font-family="ArialRoundedMTBold, Arial Rounded MT"><tspan x="-37.235" y="0">CODING</tspan></text>
+    <g id="coding-2" data-name="coding" transform="translate(4038.996 1366.167)">
+      <g id="Group_83" data-name="Group 83" transform="translate(34.691 58.228)">
+        <g id="Group_82" data-name="Group 82" transform="translate(0 0)">
+          <path id="Path_117" data-name="Path 117" d="M370,124.2,358.437,111.95a1.875,1.875,0,1,0-2.727,2.574l10.349,10.963L355.71,136.452a1.875,1.875,0,0,0,2.727,2.575L370,126.775A1.876,1.876,0,0,0,370,124.2Z" transform="translate(-355.199 -111.361)" fill="#003722"/>
+        </g>
+      </g>
+      <g id="Group_85" data-name="Group 85" transform="translate(0.001 58.228)">
+        <g id="Group_84" data-name="Group 84" transform="translate(0)">
+          <path id="Path_118" data-name="Path 118" d="M14.8,136.45,4.455,125.486,14.8,114.522a1.875,1.875,0,0,0-2.728-2.574L.512,124.2a1.876,1.876,0,0,0,0,2.575l11.564,12.252A1.875,1.875,0,0,0,14.8,136.45Z" transform="translate(-0.001 -111.36)" fill="#003722"/>
+        </g>
+      </g>
+      <g id="Group_87" data-name="Group 87" transform="translate(20.377 52.478)">
+        <g id="Group_86" data-name="Group 86" transform="translate(0 0)">
+          <path id="Path_119" data-name="Path 119" d="M216.3,52.5a1.877,1.877,0,0,0-2.137,1.571l-5.5,36a1.876,1.876,0,0,0,1.571,2.137,1.931,1.931,0,0,0,.286.021,1.876,1.876,0,0,0,1.851-1.592l5.5-36A1.875,1.875,0,0,0,216.3,52.5Z" transform="translate(-208.636 -52.478)" fill="#003722"/>
+        </g>
+      </g>
+    </g>
+    <g id="Path_137" data-name="Path 137" transform="translate(3990 1382)" fill="none">
+      <path d="M57,0H89a57,57,0,0,1,57,57V87a57,57,0,0,1-57,57H57A57,57,0,0,1,0,87V57A57.049,57.049,0,0,1,19.382,14.2c1.064-.952,2.416-2.056,3.819-3.1A56.549,56.549,0,0,1,57,0Z" stroke="none"/>
+      <path d="M 57 11 C 47.16223907470703 11 37.49256134033203 14.16743469238281 29.77146911621094 19.91941070556641 C 28.64973449707031 20.75494384765625 27.56632232666016 21.63573455810547 26.710205078125 22.40149688720703 C 16.57933044433594 31.45167541503906 11 43.73899841308594 11 57 L 11 87 C 11 112.364501953125 31.635498046875 133 57 133 L 89 133 C 114.364501953125 133 135 112.364501953125 135 87 L 135 57 C 135 31.635498046875 114.364501953125 11 89 11 L 57 11 M 57 0 L 89 0 C 120.4802398681641 0 146 25.51976776123047 146 57 L 146 87 C 146 118.4802398681641 120.4802398681641 144 89 144 L 57 144 C 25.51976776123047 144 0 118.4802398681641 0 87 L 0 57 C 0 40.12388610839844 7.334091186523438 24.96070861816406 19.38188171386719 14.19808959960938 C 20.44585418701172 13.24641418457031 21.79811859130859 12.14225769042969 23.20067596435547 11.09759521484375 C 32.47843933105469 4.185943603515625 44.25038146972656 0 57 0 Z" stroke="none" fill="#007e4e"/>
+    </g>
+    <circle id="Ellipse_20" data-name="Ellipse 20" cx="23" cy="23" r="23" transform="translate(3989 1374)" fill="#007e4e"/>
+    <text id="_1" data-name="1" transform="translate(4005 1406)" fill="#fff" font-size="24" font-family="ArialRoundedMTBold, Arial Rounded MT"><tspan x="0" y="0">1</tspan></text>
+  </g>
+</svg>

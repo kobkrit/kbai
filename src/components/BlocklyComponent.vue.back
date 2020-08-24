@@ -1,0 +1,510 @@
+<template>
+<div style="height: 100vh; width: 100vw;">
+
+    <b-row>
+        <b-col sm="8" style="margin-left: 0px; background-color:#FFF; height: 100vh; width: 100vw;" ref="blocklyDiv" fluid>
+
+        </b-col>
+        <b-col sm="4" style="background-color:#FFF">
+            <b-row>
+                <b-container fluid> Camera view </b-container>
+            </b-row>
+            <b-row>
+                <b-container fluid>
+                    <b-img ref="displayImage" center src="" style="margin-top: 1px;width: 95%;"> </b-img>
+                </b-container>
+            </b-row>
+
+            <b-row>
+                <b-form-checkbox v-model="nDisplay" name="check-button" switch>
+                    Switch Checkbox <b>(Checked: {{ nDisplay }})</b>
+                </b-form-checkbox>
+            </b-row>
+        </b-col>
+
+    </b-row>
+
+    <xml ref="toolbox" style="display: none">
+        <category name="Logic" colour="%{BKY_LOGIC_HUE}">
+            <category name="If">
+                <block type="controls_if"></block>
+                <block type="controls_if">
+                    <mutation else="1"></mutation>
+                </block>
+                <block type="controls_if">
+                    <mutation elseif="1" else="1"></mutation>
+                </block>
+            </category>
+            <category name="Boolean" colour="%{BKY_LOGIC_HUE}">
+                <block type="logic_compare"></block>
+                <block type="logic_operation"></block>
+                <block type="logic_negate"></block>
+                <block type="logic_boolean"></block>
+                <block type="logic_null"></block>
+                <block type="logic_ternary"></block>
+            </category>
+        </category>
+        <category name="Loops" colour="%{BKY_LOOPS_HUE}">
+            <block type="controls_repeat_ext">
+                <value name="TIMES">
+                    <block type="math_number">
+                        <field name="NUM">10</field>
+                    </block>
+                </value>
+            </block>
+            <block type="controls_whileUntil"></block>
+            <block type="controls_for">
+                <field name="VAR">i</field>
+                <value name="FROM">
+                    <block type="math_number">
+                        <field name="NUM">1</field>
+                    </block>
+                </value>
+                <value name="TO">
+                    <block type="math_number">
+                        <field name="NUM">10</field>
+                    </block>
+                </value>
+                <value name="BY">
+                    <block type="math_number">
+                        <field name="NUM">1</field>
+                    </block>
+                </value>
+            </block>
+            <block type="controls_forEach"></block>
+            <block type="controls_flow_statements"></block>
+        </category>
+        <category name="Math" colour="%{BKY_MATH_HUE}">
+            <block type="math_number">
+                <field name="NUM">123</field>
+            </block>
+            <block type="math_arithmetic"></block>
+            <block type="math_single"></block>
+            <block type="math_trig"></block>
+            <block type="math_constant"></block>
+            <block type="math_number_property"></block>
+            <block type="math_round"></block>
+            <block type="math_on_list"></block>
+            <block type="math_modulo"></block>
+            <block type="math_constrain">
+                <value name="LOW">
+                    <block type="math_number">
+                        <field name="NUM">1</field>
+                    </block>
+                </value>
+                <value name="HIGH">
+                    <block type="math_number">
+                        <field name="NUM">100</field>
+                    </block>
+                </value>
+            </block>
+            <block type="math_random_int">
+                <value name="FROM">
+                    <block type="math_number">
+                        <field name="NUM">1</field>
+                    </block>
+                </value>
+                <value name="TO">
+                    <block type="math_number">
+                        <field name="NUM">100</field>
+                    </block>
+                </value>
+            </block>
+            <block type="math_random_float"></block>
+            <block type="math_atan2"></block>
+        </category>
+        <category name="Text" colour="%{BKY_TEXTS_HUE}">
+            <block type="text"></block>
+            <block type="text_length"></block>
+            <block type="text_print"></block>
+        </category>
+        <category name="Lists" colour="%{BKY_LISTS_HUE}">
+            <block type="lists_create_empty"></block>
+            <block type="lists_create_with"></block>
+            <block type="lists_repeat">
+                <value name="NUM">
+                    <block type="math_number">
+                        <field name="NUM">5</field>
+                    </block>
+                </value>
+            </block>
+            <block type="lists_length"></block>
+            <block type="lists_isEmpty"></block>
+            <block type="lists_indexOf"></block>
+            <block type="lists_getIndex"></block>
+            <block type="lists_setIndex"></block>
+        </category>
+        <sep></sep>
+        <category name="Variables" custom="VARIABLE" colour="%{BKY_VARIABLES_HUE}">
+        </category>
+        <category name="Functions" custom="PROCEDURE" colour="%{BKY_PROCEDURES_HUE}">
+        </category>
+        <sep></sep>
+
+        <category name="KidBright AI" colour="%{BKY_VARIABLES_HUE}">
+            <block type="init_ros_node"></block>
+            <block type="start_object_detector"></block>
+            <block type="rospy_loop"></block>
+            <block type="get_objects"></block>
+            <block type="get_object_attr"></block>
+            <block type="set_velocity"></block>
+        </category>
+
+    </xml>
+
+</div>
+</template>
+
+<script>
+/**
+ * @license
+ * 
+ * Copyright 2019 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * @fileoverview Blockly Vue Component.
+ * @author samelh@google.com (Sam El-Husseini)
+ */
+
+import Blockly from 'blockly';
+import blocklyPython from 'blockly/python';
+import axios from 'axios';
+var axios_options = {
+    proxy: {
+        host: "127.0.0.1",
+        port: 3000
+    }
+};
+
+var axiosInstance = axios.create({
+    baseURL: `${location.protocol}//${location.hostname}:3000`,
+})
+
+import {
+    mapGetters
+} from 'vuex'
+
+export default {
+    name: 'BlocklyComponent',
+    data() {
+        return {
+            blockly_woakspace: null,
+            blockly_xml: "",
+            nDisplay: false,
+            ipAddress: "192.168.88.247"
+
+        }
+    },
+    computed: {
+        updateXML: function () {
+            console.log("Update XML to workspace")
+            this.blockly_woakspace.clear();
+            let textToDom = Blockly.Xml.textToDom(this.blockly_xml);
+            Blockly.Xml.domToWorkspace(this.blockly_woakspace, textToDom);
+        },
+
+        updateOutput: function () {
+            console.log("NDisplay =")
+            console.log(this.nDisplay)
+        }
+
+    },
+    watch: {
+        nDisplay: {
+            deep: true,
+            handler: function (newValue) {
+                console.log("Selected users changed", newValue)
+                if (newValue == false) {
+
+                    this.url = 'http://' + this.ipAddress + ':8080/stream?topic=/output/image_raw&type=ros_compressed';
+                    this.$refs.displayImage.src = this.url
+
+                } else if (newValue == true) {
+
+                    this.url = "http://" + this.ipAddress + ":8080/stream?topic=/output/image_detected&type=ros_compressed"
+
+                    this.$refs.displayImage.src = this.url
+
+                }
+            }
+        }
+    },
+
+    mounted() {
+
+     
+
+        //this.code = blocklyPython.workspaceToCode(this.blockly_woakspace);
+
+        Blockly.readPythonFile = function (file) {
+            var rawFile = new XMLHttpRequest();
+            var code = "";
+            rawFile.open("GET", file, false);
+            rawFile.onreadystatechange = function () {
+                var rr = JSON.parse(rawFile.responseText)
+                if (rawFile.readyState === 4) {
+                    if (rawFile.status === 200 || rawFile.status == 0) {
+                        code = rr.data;
+                    }
+                }
+            }
+            rawFile.send(null);
+            return code;
+        };
+
+        Blockly.Python['start_object_detector'] = function (block) {
+            //var code = Blockly.readPythonFile("/getPython" + "?file=start_object_detector.py")
+            //var code1 = code.toString().split("\n");
+            //console.log("Split code")
+            //code1.splice(6, 0, "\tcommand=\'rosrun kidbright_tpu tpu_detect.py\'");
+            //var text = code1.join("\n");
+            //console.log(this.$store.getters.getProjectDir )
+            var cc = "import rosnode\nimport subprocess\nimport time\nimport os\nros_nodes = rosnode.get_node_names()\nif not \'/image_feature\' in ros_nodes:\n"
+            cc = cc + "\tcommand=\'rosrun kidbright_tpu tpu_detect.py /home/pi/kbclientNew/nectec-client/public/" + this.$store.getters.getProjectDir + "\'\n"
+            cc = cc + "\tprocess = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)\n\ttime.sleep(10) \n"
+
+            return cc;
+
+        }.bind(this);
+
+        Blockly.Python['init_ros_node'] = function (block) {
+            var code = "from geometry_msgs.msg import Twist\nimport rospy\nrospy.init_node('get_center', anonymous=True)\nvelocity_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=1)\nvel_msg = Twist()\n"
+            return code;
+
+        };
+
+        /*Blockly.Blocks['get_objects'] = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField("Get objects");
+                this.setOutput(true, null);
+                this.setColour(230);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };*/
+
+        Blockly.Blocks['get_objects'] = {
+            init: function () {
+                this.appendValueInput("Objs")
+                    .appendField("Get objects");
+
+                this.setPreviousStatement(true);
+                this.setNextStatement(true);
+
+                this.setColour(0);
+                this.setTooltip('');
+                this.setHelpUrl('');
+            }
+        };
+
+        Blockly.Blocks['sumorobot_opponent'] = {
+            init: function () {
+                this.setColour("#0099E6");
+                this.appendDummyInput().appendField('opponent');
+                this.setOutput(true, 'Boolean');
+            }
+        };
+
+        Blockly.Blocks['start_object_detector'] = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField("Start object detector");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(230);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };
+
+        Blockly.Blocks['init_ros_node'] = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField("ROS node initialization");
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(230);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };
+
+        Blockly.Blocks['rospy_loop'] = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField("ROS LOOP");
+                this.appendStatementInput("DO")
+                    .setCheck(null)
+                    .setAlign(Blockly.ALIGN_RIGHT);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(230);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };
+
+        Blockly.Blocks['get_object_attr'] = {
+            init: function () {
+                this.appendValueInput("VAR")
+                    .setCheck(null)
+                    .appendField("get")
+                    .appendField(new Blockly.FieldDropdown([
+                        ["cx", "cx"],
+                        ["cy", "cy"],
+                        ["width", "width"],
+                        ["height", "height"],
+                        ["label", "label"]
+                    ]), "DATA_FIELD")
+                    .appendField(" from");
+                this.setOutput(true, null);
+                this.setColour(230);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };
+
+        Blockly.Blocks['set_velocity'] = {
+            init: function () {
+                this.appendDummyInput()
+                    .appendField("move with ");
+                this.appendDummyInput()
+                    .appendField("linear velocity")
+                    .appendField(new Blockly.FieldNumber(0), "LINEAR");
+                this.appendDummyInput()
+                    .appendField("angular velocity")
+                    .appendField(new Blockly.FieldNumber(0), "ANGULAR");
+                this.setInputsInline(true);
+                this.setPreviousStatement(true, null);
+                this.setNextStatement(true, null);
+                this.setColour(230);
+                this.setTooltip("");
+                this.setHelpUrl("");
+            }
+        };
+
+        Blockly.Python['set_velocity'] = function (block) {
+            var number_linear = block.getFieldValue('LINEAR');
+            var number_angular = block.getFieldValue('ANGULAR');
+            var code = "vel_msg.linear.y = 0\nvel_msg.linear.z = 0\nvel_msg.angular.x = 0\nvel_msg.angular.y = 0\n"
+            code = code + "vel_msg.linear.x = " + number_linear + "\n" + "vel_msg.angular.z = " + number_angular + "\n"
+            code = code + "velocity_publisher.publish(vel_msg)\n"
+
+            return code;
+        };
+
+        Blockly.Python['get_object_attr'] = function (block) {
+            var dropdown_data_field = block.getFieldValue('DATA_FIELD');
+            var value_var = Blockly.Python.valueToCode(block, 'VAR', Blockly.Python.ORDER_ATOMIC);
+            // TODO: Assemble Python into code variable.
+            console.log(block.getFieldValue('DATA_FIELD'));
+            var code = value_var + "." + block.getFieldValue('DATA_FIELD');
+            // TODO: Change ORDER_NONE to the correct strength.
+            return [code, Blockly.Python.ORDER_NONE];
+        };
+
+        Blockly.Python['rospy_loop'] = function (block) {
+            var statements_name = Blockly.Python.statementToCode(block, 'NAME');
+            // TODO: Assemble Python into code variable.
+            var branch = Blockly.Python.statementToCode(block, 'DO');
+            branch = Blockly.Python.addLoopTrap(branch, block) || Blockly.Python.PASS;
+            var code = 'while not rospy.is_shutdown():\n' + branch;
+            return code;
+        };
+
+        Blockly.Python['get_objects'] = function (block) {
+            // TODO: Assemble Python into code variable.
+            var code = "import roslib\nimport rospy\nfrom kidbright_tpu.msg import tpu_object\nfrom kidbright_tpu.msg import tpu_objects \n"
+            //code = code + "rospy.wait_for_message('/tpu_objects', tpu_objects, timeout=4)\n";
+            // TODO: Change ORDER_NONE to the correct strength.
+            //return [code, Blockly.Python.ORDER_NONE];
+
+            var varName = Blockly.Python.valueToCode(block, 'Objs', Blockly.Python.ORDER_ATOMIC);
+
+            //var code = "";
+            //code += Blockly.readPythonFile("../blockly/generators/python/scripts/brain/get_laser.py");
+            return code + varName + " = rospy.wait_for_message('/tpu_objects', tpu_objects, timeout=4).tpu_objects\n"
+        };
+
+        console.log("Blockly is mounted")
+        setTimeout(() => {
+            //alert("Hello blockly")
+            var tt = {}
+            //tt.toolbox = base_blocks
+            tt.toolbox = this.$refs["toolbox"]
+            tt.scrollbars = true
+            tt.css = true
+            tt.zoom = {
+                controls: true,
+                wheel: true,
+                startScale: 1.0,
+                maxScale: 4,
+                minScale: .25,
+                scaleSpeed: 1.1
+            }
+
+            var blckDiv = this.$refs["blocklyDiv"]
+            this.blockly_woakspace = Blockly.inject(this.$refs["blocklyDiv"], tt);
+            this.$store.commit('setBlocklyWorkspace', this.blockly_woakspace)
+            console.log("Injection running ***********************************")
+            //console.log(this.blockly_woakspace)
+            this.loaded = true
+        }, 500)
+
+        axiosInstance.get("getIP", axios_options).then(response => {
+            this.ipAddress = response.data.IP
+            console.log("ROS IP = " + this.ipAddress);
+            //this.url = "http://" + this.ipAddress + ":8888/image640.png"
+            this.url = 'http://' + this.ipAddress + ':8080/stream?topic=/output/image_raw&type=ros_compressed';
+            this.$refs.displayImage.src = this.url
+        });
+
+    },
+    created() {
+        this.unsubscribe = this.$store.subscribe((mutation, state) => {
+            if (mutation.type === 'setBlocklyXml') {
+                console.log('updating xml !!!!!!!!!');
+                //console.log(state.blockly_xml)
+                this.blockly_xml = state.blockly_xml
+                //this.blockly_woakspace = state.blockly_xml
+                this.blockly_woakspace.clear();
+                let textToDom = Blockly.Xml.textToDom(this.blockly_xml);
+                Blockly.Xml.domToWorkspace(this.blockly_woakspace, textToDom);
+
+            }
+        });
+    },
+    beforeDestroy() {
+        this.unsubscribe();
+    },
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+
+<style scoped>
+#blocklyDiv {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.fullHeight {
+    height: 100%;
+    background: rebeccapurple;
+}
+</style>

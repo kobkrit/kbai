@@ -1,0 +1,791 @@
+<template>
+<div>
+    <div class="container-fluid fill-height">
+        <b-row style="background-color:#333333" class="pt-2 pb-2">
+            <b-col v-show="getTrainingType !== 'None'">
+                <b-button-toolbar>
+                    <b-button-group class="mx-1">
+                        <b-button v-b-modal.modal-prevent-closing>New</b-button>
+                        <b-button v-on:click="getAllProjects" v-b-modal.modal_list_files>Open</b-button>
+                        <b-button v-on:click="deleteProject" v-b-modal.modal_list_delete_files>Delete</b-button>
+                    </b-button-group>
+                    <b-button-group class="mx-1">
+                        <b-button variant="info" @click="loadAllFromUSB" :disabled="isLoading || isSaving">
+                            <b-spinner v-if="isLoading" small></b-spinner> Import
+                        </b-button>
+                        <b-button variant="success" @click="saveToUSB" :disabled="isLoading || isSaving">
+                            <b-spinner v-if="isSaving" small></b-spinner> Save
+                        </b-button>
+                        <b-button variant="danger" @click="ejectUSB" :disabled="isLoading || isSaving">Eject</b-button>
+                    </b-button-group>
+                </b-button-toolbar>
+            </b-col>
+
+            <b-col>
+                <b-button v-if="isRunHiden" :disabled="isProjectLoaded" variant="danger" pill v-on:click="showCode" style="padding-left: 16px;padding-right: 16px;" class="btn-space">
+                    Run
+                </b-button>
+                <b-button v-if="isRunHiden" :disabled="!isProjectLoaded" variant="success" pill v-on:click="stopRun" style="padding-left: 16px;padding-right: 16px;" class="btn-space">
+                    Stop
+                </b-button>
+                <!--<b-button v-if="isRunHiden" :disabled="isProjectLoaded" variant="success" pill v-on:click="saveWorkspace" style="padding-left: 16px;padding-right: 16px;" class="btn-space">
+                    Save Blockly
+                </b-button>
+                <b-button v-if="isRunHiden" :disabled="isProjectLoaded" variant="success" pill v-on:click="loadWorkspace" style="padding-left: 16px;padding-right: 16px;" class="btn-space">
+                    Load Blockly
+                </b-button>-->
+            </b-col>
+            <b-col style="display: flex; align-items: center; justify-content: flex-end;">
+                <b-dropdown id="dropdown-1" :text="
+              getTrainingType !== 'None'
+                ? getTrainingType
+                : 'Select trainning type'
+            " class="mr-2">
+                    <b-dropdown-item @click="handleSelect('Object detection')">Object detection</b-dropdown-item>
+                    <b-dropdown-item @click="handleSelect('Image classification')">Image classification</b-dropdown-item>
+                </b-dropdown>
+                <div style="color:#ABEBC6;">
+                    Current project : {{ getProjectDir }}
+                </div>
+            </b-col>
+        </b-row>
+
+        <b-row>
+            <vue-tabs @tab-change="handleTabChange">
+                <v-tab title="Coding" active>
+                    <BlocklyComponent />
+                </v-tab>
+                <v-tab title="Capture">
+                    <Capture />
+                </v-tab>
+                <v-tab v-if="getTrainingType !== 'None'" title="Annotation">
+                    <Anotate v-show="getTrainingType === 'Object detection'" />
+                    <AnnotateForClassify v-show="getTrainingType === 'Image classification'" />
+                </v-tab>
+                <v-tab v-if="getTrainingType !== 'None'" title="Training">
+                    <Train v-show="getTrainingType === 'Object detection'" />
+                    <TrainLocal v-show="getTrainingType === 'Image classification'" />
+                </v-tab>
+
+            </vue-tabs>
+        </b-row>
+    </div>
+    <b-modal id="modal-prevent-closing" ref="modal" title="Enter project name" @show="resetModal" @hidden="resetModal" @ok="handleOk">
+        <form ref="form" @submit.stop.prevent="handleSubmit">
+            <b-form-group :state="nameState" label="Name" label-for="name-input" invalid-feedback="Name is required">
+                <b-form-input id="name-input" v-model="projectDirIn" :state="nameState" required></b-form-input>
+            </b-form-group>
+        </form>
+    </b-modal>
+
+    <b-modal id="modal_list_files" title="Projects list">
+        <!--<div v-for="(item, index) in projectsName" :key="`fruit-${index}`">
+            {{ item }}
+        </div>-->
+        <b-table show-empty striped hover stacked="md" caption-top selectable :select-mode="selectMode" selectedVariant="success" :items="projectsName" @row-selected="rowSelected" @row-clicked="rowClicked">
+        </b-table>
+    </b-modal>
+
+    <b-modal id="modal_list_delete_files" title="Project list" @ok="handleProjectDelete">
+        <b-table show-empty striped hover stacked="md" caption-top selectable :select-mode="selectMode" selectedVariant="success" :items="projectsName" @row-selected="rowDeleteSelected" @row-clicked="rowDeleteClicked">
+        </b-table>
+    </b-modal>
+
+    <!-- <b-modal
+      id="modal_list_usb_directories"
+      title="Project list"
+      @ok="loadFromUSB"
+      :ok-disabled="!directorySelected"
+    >
+      <b-table
+        show-empty
+        striped
+        hover
+        stacked="md"
+        caption-top
+        selectable
+        :select-mode="selectMode"
+        selectedVariant="success"
+        :items="projectsfromUSB"
+        @row-selected="onSelectDirectory"
+      >
+      </b-table>
+    </b-modal> -->
+
+    <b-modal ref="pyhonLoading" hide-footer title="Loading code">
+        <div class="d-block text-center">
+            <b-progress :max="max" height="2rem" :striped="true" show-progress :animated="true">
+                <b-progress-bar :value="value" variant="success">
+                    <h5 v-if="value > 0">Loading</h5>
+                </b-progress-bar>
+            </b-progress>
+        </div>
+    </b-modal>
+</div>
+</template>
+
+<script>
+import axios from 'axios'
+import {
+    mapGetters
+} from 'vuex'
+import Anotate from '@/components/anonate.vue'
+import AnnotateForClassify from '@/components/annotateForClassify.vue'
+import Capture from '@/components/capture.vue'
+import BlocklyComponent from '@/components/BlocklyComponent.vue'
+import Train from '@/components/train.vue'
+import TrainLocal from '@/components/trainLocal.vue'
+import '../blocks/stocks'
+import '../prompt'
+import {
+    VueTabs,
+    VTab
+} from 'vue-nav-tabs'
+//you can also import this in your style tag
+import 'vue-nav-tabs/themes/vue-tabs.css'
+import 'vue-awesome/icons'
+import VIcon from 'vue-awesome/components/Icon'
+
+//import BlocklyJS from 'blockly/javascript';
+import blocklyPython from 'blockly/python'
+import Blockly from 'blockly'
+//import Blockly from 'node-blockly/browser';
+//import blocklyPython from 'node-blockly/python';
+
+var axiosInstance = axios.create({
+    baseURL: `${location.protocol}//${location.hostname}:3000`,
+})
+
+export default {
+    name: 'Main',
+    components: {
+        Anotate,
+        AnnotateForClassify,
+        Capture,
+        Train,
+        TrainLocal,
+        // eslint-disable-next-line vue/no-unused-components
+        BlocklyComponent,
+        VueTabs,
+        VTab,
+        VIcon,
+    },
+    data: function () {
+        return {
+            selectMode: 'single',
+            activetab: 1,
+            nameState: null,
+            projectDirIn: '',
+            projectsName: [],
+            projectsfromUSB: [],
+            directorySelected: null,
+            deletingProject: null,
+            loaded: false,
+            blockly_woakspace: null,
+            code: '',
+            code_file: '',
+            options: {},
+            isRunHiden: true,
+            isStopHidden: false,
+            isProjectLoaded: true,
+            //url: "http://192.168.88.243:8080/stream?topic=/output/image_detected&type=ros_compressed"
+            url: '',
+            ipAddress: '192.168.88.247',
+            value: 0,
+            max: 24,
+            cmdVel: null,
+            isSaving: false,
+            isLoading: false,
+        }
+    },
+    methods: {
+        rowSelected(items) {
+            //console.log(items)
+            return (this.selected = items)
+        },
+        rowClicked: function (item, index) {
+            this.$store.dispatch(
+                'changeProjectDir',
+                this.projectsName[index].Projects,
+            )
+            this.$store.dispatch('reqImages')
+            this.loadWorkspace()
+            this.isProjectLoaded = false
+        },
+        rowDeleteSelected(items) {
+            //console.log(items)
+            this.selected = items
+            this.isProjectLoaded = true
+        },
+        rowDeleteClicked: function (item, index) {
+            this.$store.dispatch(
+                'changeProjectDir',
+                this.projectsName[index].Projects,
+            )
+            this.deletingProject = this.projectsName[index].Projects
+        },
+        handleProjectDelete: function (bvModalEvt) {
+            if (this.deletingProject === null) {
+                bvModalEvt.preventDefault()
+            } else {
+                this.$store.dispatch('deleteProject', this.deletingProject)
+                this.$store.dispatch('regProjects').then(
+                    () => {
+                        console.log(
+                            'Got some data, now lets show something in this component',
+                        )
+                        this.deletingProject = null
+                    },
+                    () => {
+                        console.error(
+                            'Got nothing from server. Prompt user to check internet connection and try again',
+                        )
+                    },
+                )
+            }
+        },
+        deleteProject: function () {
+            this.getAllProjects()
+        },
+        getAllProjects: function () {
+            this.$store.dispatch('regProjects').then(
+                () => {
+                    console.log(
+                        'Got some data, now lets show something in this component',
+                    )
+                    var projectNames = this.$store.getters.getProjects
+                    while (this.projectsName.length) {
+                        this.projectsName.pop()
+                    }
+                    projectNames.forEach(
+                        function (item) {
+                            this.projectsName.push({
+                                Projects: item,
+                            })
+                        }.bind(this),
+                    )
+                    //this.projectsName = this.$store.getters.getProjects
+                    //this.$store.dispatch('regProjects')
+                    console.log(this.projectsName)
+                },
+                () => {
+                    console.error(
+                        'Got nothing from server. Prompt user to check internet connection and try again',
+                    )
+                },
+            )
+        },
+        async listDirectoriesFromUSB() {
+            const res = await axiosInstance.get('/getDirectories')
+            if (res) {
+                if (res.data.status === 'error') {
+                    this.$bvToast.toast(res.data.message, {
+                        title: 'Error!',
+                        autoHideDelay: 3000,
+                    })
+                } else if (res.data.status === 'success') {
+                    this.projectsfromUSB = res.data.data.map((e) => ({
+                        Project: e
+                    }))
+                }
+            }
+        },
+        onSelectDirectory(items) {
+            if (items && items.length > 0) {
+                this.directorySelected = items[0]['Project']
+            }
+        },
+        async loadFromUSB() {
+            if (this.directorySelected) {
+                const res = await axiosInstance.post('/loadFromUSB', {
+                    projectName: this.directorySelected,
+                })
+                if (res) {
+                    if (res.data.status === 'error') {
+                        this.$bvToast.toast(res.data.message, {
+                            title: 'Error!',
+                            autoHideDelay: 3000,
+                        })
+                    } else if (res.data.status === 'success') {
+                        this.$bvToast.toast(res.data.message, {
+                            title: 'Success!',
+                            autoHideDelay: 3000,
+                        })
+                        this.$store.dispatch('changeProjectDir', this.directorySelected)
+                        this.$store.dispatch('reqImages')
+                        this.loadWorkspace()
+                        this.directorySelected = null
+                    }
+                }
+            }
+        },
+        async loadAllFromUSB() {
+            this.isLoading = true
+            const res = await axiosInstance.post('/loadAllFromUSB')
+            this.isLoading = false
+            if (res) {
+                if (res.data.status === 'error') {
+                    this.$bvToast.toast(res.data.message, {
+                        title: 'Error!',
+                        autoHideDelay: 3000,
+                    })
+                } else if (res.data.status === 'success') {
+                    this.$bvToast.toast(res.data.message, {
+                        title: 'Success!',
+                        autoHideDelay: 3000,
+                    })
+                }
+            }
+        },
+        async saveToUSB() {
+            if (this.getProjectDir) {
+                this.isSaving = true
+                const res = await axiosInstance.post('/saveToUSB', {
+                    projectName: this.getProjectDir,
+                })
+                this.isSaving = false
+                if (res) {
+                    if (res.data.status === 'error') {
+                        this.$bvToast.toast(res.data.message, {
+                            title: 'Error!',
+                            autoHideDelay: 3000,
+                        })
+                    } else if (res.data.status === 'success') {
+                        this.$bvToast.toast(res.data.message, {
+                            title: 'Success!',
+                            autoHideDelay: 3000,
+                        })
+                    }
+                }
+                var xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)
+                let domToPretty = Blockly.Xml.domToPrettyText(xml)
+                axiosInstance
+                    .post('saveXML', {
+                        filename: this.$store.getters.getProjectDir + '/test1.xml',
+                        data: domToPretty,
+                    })
+                    .then((response) => {
+                        console.log(response.data)
+                        //this.isProjectLoaded = true
+                    })
+            }
+        },
+        async ejectUSB() {
+            const res = await axiosInstance.post('/ejectUSB')
+            if (res) {
+                this.$bvToast.toast(res.data.message, {
+                    title: 'Success!',
+                    autoHideDelay: 3000,
+                })
+            }
+        },
+        checkFormValidity() {
+            const valid = this.$refs.form.checkValidity()
+            this.nameState = valid ? 'valid' : 'invalid'
+            return valid
+        },
+        resetModal() {
+            this.projectDirIn = ''
+            this.nameState = null
+        },
+        handleOk(bvModalEvt) {
+            // Prevent modal from closing
+            bvModalEvt.preventDefault()
+            // Trigger submit handler
+            this.handleSubmit()
+        },
+        handleSelect(type) {
+            this.$store.dispatch('setTrainingType', type)
+        },
+        handleSubmit() {
+            // Exit when the form isn't valid
+            if (!this.checkFormValidity()) {
+                return
+            }
+            // Push the name to submitted names
+            //this.submittedNames.push(this.projectDirIn)
+            this.$store.dispatch('setProjectDir', this.projectDirIn)
+            // Hide the modal manually
+            this.$nextTick(() => {
+                this.$store.dispatch('regProjects')
+                this.$refs.modal.hide()
+            })
+        },
+        handleTabChange(tabIndex) {
+            console.log('Tabindex = ' + tabIndex)
+            if (tabIndex == 0 && this.loaded == false) {
+                this.isRunHiden = false
+            }
+            if (tabIndex == 0) {
+                this.isRunHiden = true
+            } else {
+                this.isRunHiden = false
+            }
+        },
+
+        showCode() {
+            console.log('Hello world code!!!!! b4')
+            this.code = blocklyPython.workspaceToCode(this.blockly_woakspace)
+            //blocklyPython.workspaceToCode(this.blockly_woakspace).then((returnVal) => {
+            //    console.log(returnVal.data.data)
+            //})
+
+            console.log('Hello world code!!!!!')
+
+            axiosInstance
+                .post('run', {
+                    filename: this.$store.getters.getProjectDir + '/test1.py',
+                    data: this.code,
+                })
+                .then((response) => {
+                    console.log(response.data)
+                    this.isProjectLoaded = true
+                    //this.url = "http://192.168.88.243:8080/stream?topic=/output/image_detected&type=ros_compressed"
+                    this.$refs['pyhonLoading'].show()
+                    /* setTimeout(() => {
+
+                               this.url = "http://" + this.ipAddress + ":8080/stream?topic=/output/image_detected&type=ros_compressed"
+                               //this.url = "http://0.0.0.0:8080/stream?topic=/output/image_detected&type=ros_compressed"
+                               this.$refs.displayImage.src = this.url
+                               this.$refs['pyhonLoading'].hide()
+                               console.log(this.url)
+                           }, 12000)*/
+
+                    var timerId, percent
+                    percent = 0
+                    timerId = setInterval(() => {
+                        // increment progress bar
+                        percent += 1
+                        console.log(percent)
+                        this.value = percent
+
+                        // complete
+                        if (percent >= 24) {
+                            clearInterval(timerId)
+
+                            this.$refs['pyhonLoading'].hide()
+
+                        }
+                    }, 500)
+                    //this.url = "https://picsum.photos/250/250/?image=59"
+                })
+            console.log(this.code)
+        },
+
+        stopRun() {
+            axiosInstance
+                .post('stop', {
+                    filename: this.$store.getters.getProjectDir + '/test1.py',
+                    data: this.code,
+                })
+                .then((response) => {
+                    console.log(response.data)
+                    this.isProjectLoaded = false
+
+                })
+        },
+        saveWorkspace() {
+            var xml = Blockly.Xml.workspaceToDom(Blockly.mainWorkspace)
+            let domToPretty = Blockly.Xml.domToPrettyText(xml)
+            axiosInstance
+                .post('saveXML', {
+                    filename: this.$store.getters.getProjectDir + '/test1.xml',
+                    data: domToPretty,
+                })
+                .then((response) => {
+                    console.log(response.data)
+                    //this.isProjectLoaded = true
+                })
+            console.log(xml)
+        },
+        loadWorkspace() {
+            console.log(this.$store.getters.getProjectDir + "/test1.xml")
+            this.$store.dispatch('clearBlocklyWorkspace')
+
+            axiosInstance.post("getXML", {
+                filename: this.$store.getters.getProjectDir + "/test1.xml"
+            }).then((response) => {
+                console.log(response)
+                /*var xml = Blockly.Xml.textToDom(response.data)
+                console.log(xml)
+                Blockly.mainWorkspace.clear();
+                Blockly.Xml.domToWorkspace(Blockly.workspace, xml)*/
+
+                this.$store.commit('setBlocklyXml', response.data)
+
+                //Blockly.mainWorkspace.clear();
+
+                //let textToDom = Blockly.Xml.textToDom(response.data);
+                //Blockly.Xml.domToWorkspace(Blockly.mainWorkspace, textToDom);
+
+                //console.log(xml)
+                //this.isProjectLoaded = true
+            });
+
+        },
+        // linkProperties(route) {
+        //   const routeName = route.name ? route.name : route
+        //   const externalRoute = this.externalRoutes.filter(
+        //     (r) => r.name === routeName,
+        //   )[0]
+        //   let url = externalRoute ? externalRoute.url : routeName
+
+        //   if (externalRoute || url.match(/^(http(s)?|ftp):\/\//)) {
+        //     if (route.query) {
+        //       url = `${url}?${$.param(route.query)}`
+        //     }
+
+        //     return {
+        //       is: 'a',
+        //       href: url,
+        //     }
+        //   }
+
+        //   return {
+        //     is: 'router-link',
+        //     to: {
+        //       name: url,
+        //       query: route.query,
+        //     },
+        //   }
+        // },
+
+        onForward: function () {
+            // var x = 0
+            var y = 0
+            var z = 0
+            var pub = true
+            if (pub === true) {
+                // eslint-disable-next-line no-undef
+                var twist = new ROSLIB.Message({
+                    angular: {
+                        x: 0,
+                        y: 0,
+                        z: z,
+                    },
+                    linear: {
+                        x: 0.1,
+                        y: y,
+                        z: z,
+                    },
+                })
+                console.log(twist)
+
+                this.$store.getters.getCmdVel.publish(twist)
+                //console.log(this.cmdVel);
+            }
+        },
+
+        onBackward: function () {
+            // var x = 0
+            var y = 0
+            var z = 0
+            var pub = true
+            if (pub === true) {
+                // eslint-disable-next-line no-undef
+                var twist = new ROSLIB.Message({
+                    angular: {
+                        x: 0,
+                        y: 0,
+                        z: z,
+                    },
+                    linear: {
+                        x: -0.1,
+                        y: y,
+                        z: z,
+                    },
+                })
+                console.log(twist)
+
+                this.$store.getters.getCmdVel.publish(twist)
+                //console.log(this.cmdVel);
+            }
+        },
+        onLeft: function () {
+            // var x = 0
+            var y = 0
+            var z = 0
+            var pub = true
+            if (pub === true) {
+                // eslint-disable-next-line no-undef
+                var twist = new ROSLIB.Message({
+                    angular: {
+                        x: 0,
+                        y: 0,
+                        z: -0.3,
+                    },
+                    linear: {
+                        x: 0.1,
+                        y: y,
+                        z: z,
+                    },
+                })
+                console.log(twist)
+
+                this.$store.getters.getCmdVel.publish(twist)
+                //console.log(this.cmdVel);
+            }
+        },
+
+        onRight: function () {
+            // var x = 0
+            var y = 0
+            var z = 0
+            var pub = true
+            if (pub === true) {
+                // eslint-disable-next-line no-undef
+                var twist = new ROSLIB.Message({
+                    angular: {
+                        x: 0,
+                        y: 0,
+                        z: 0.3,
+                    },
+                    linear: {
+                        x: 0.1,
+                        y: y,
+                        z: z,
+                    },
+                })
+                console.log(twist)
+
+                this.$store.getters.getCmdVel.publish(twist)
+                //console.log(this.cmdVel);
+            }
+        },
+        onCCW: function () {
+            // var x = 0
+            var y = 0
+            var z = 0
+            var pub = true
+            if (pub === true) {
+                // eslint-disable-next-line no-undef
+                var twist = new ROSLIB.Message({
+                    angular: {
+                        x: 0,
+                        y: 0,
+                        z: 0.3,
+                    },
+                    linear: {
+                        x: 0,
+                        y: y,
+                        z: z,
+                    },
+                })
+                console.log(twist)
+
+                this.$store.getters.getCmdVel.publish(twist)
+                //console.log(this.cmdVel);
+            }
+        },
+
+        onCW: function () {
+            // var x = 0
+            var y = 0
+            var z = 0
+            var pub = true
+            if (pub === true) {
+                // eslint-disable-next-line no-undef
+                var twist = new ROSLIB.Message({
+                    angular: {
+                        x: 0,
+                        y: 0,
+                        z: -0.3,
+                    },
+                    linear: {
+                        x: 0,
+                        y: y,
+                        z: z,
+                    },
+                })
+                console.log(twist)
+
+                this.$store.getters.getCmdVel.publish(twist)
+                //console.log(this.cmdVel);
+            }
+        },
+
+        getBlock() {},
+    },
+    mounted() {
+        this.$store.dispatch('regProjects')
+
+        //this.renderBlockly()
+        axiosInstance.get('getIP').then((response) => {
+            this.ipAddress = response.data.IP
+            console.log('ROS IP = ' + this.ipAddress)
+            //this.url = "http://" + this.ipAddress + ":8888/image640.png"
+            this.url =
+                'http://' +
+                this.ipAddress +
+                ':8080/stream?topic=/output/image_raw&type=ros_compressed'
+            this.$refs.displayImage.src = this.url
+        })
+
+        this.cmdVel = this.$store.getters.getCmdVel
+    },
+    computed: {
+        ...mapGetters([
+            'getProjectDir',
+            'getProjects',
+            'getImages',
+            'getProjectStatus',
+            'getCmdVel',
+            'getTrainingType',
+            'getBlocklyWorkspace'
+        ]),
+        getImgSrc: function () {
+            return this.url
+        },
+        saveButton: function () {
+            return this.isSaving ? 'Saving...' : 'Save to usb'
+        },
+
+        /*
+            getImgSrc: function () {
+                return this.imgSrc
+            }*/
+    },
+    props: {
+        msg: String,
+    },
+}
+</script>
+
+<style scoped>
+/* RESET */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 100%;
+    min-width: 100%;
+    max-height: 100%;
+    min-height: 100%;
+    margin: 0px auto;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.9em;
+    color: #888;
+}
+
+#app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #2c3e50;
+}
+
+html,
+body {
+    margin: 0;
+}
+
+#blocklyDiv {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    margin-left: 33.33%;
+}
+</style>

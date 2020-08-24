@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="164" height="51" viewBox="0 0 164 51">
+  <defs>
+    <filter id="Rectangle_105" x="0" y="0" width="164" height="51" filterUnits="userSpaceOnUse">
+      <feOffset input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_104" data-name="Group 104" transform="translate(-1788 -276)">
+    <g transform="matrix(1, 0, 0, 1, 1788, 276)" filter="url(#Rectangle_105)">
+      <rect id="Rectangle_105-2" data-name="Rectangle 105" width="146" height="33" rx="16.5" transform="translate(9 9)" fill="#fff"/>
+    </g>
+    <text id="LET_S_START_" data-name="LET’S START!" transform="translate(1870 306)" fill="#333" font-size="14" font-family="ArialRoundedMTBold, Arial Rounded MT"><tspan x="-47.701" y="0">LET’S START!</tspan></text>
+  </g>
+</svg>
