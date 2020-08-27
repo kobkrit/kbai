@@ -7,10 +7,8 @@
         <Main msg="Welcome to Your Vue.js App" />
     </main> -->
 
-
-   
     <router-view />
-  
+
 </div>
 </template>
 
@@ -29,7 +27,7 @@ export default {
     },
     data() {
         return {
-            isLoading: true
+            isLoading: false
         };
     },
     /*mounted() {
@@ -51,26 +49,28 @@ export default {
 
 <style>
 #app {
-  font-family: 'Poppins','Sarabun', sans-serif;
-  /*font-family: "Avenir", Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', 'Sarabun', sans-serif;
+    /*font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;*/
-  color: #333;
+    color: #333;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  outline: none;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    box-sizing: border-box;
 }
+
 a {
-  text-decoration: none;
-  color: unset;
+    text-decoration: none;
+    color: unset;
 }
+
 ul {
-  list-style: none;
-  padding: 0;
+    list-style: none;
+    padding: 0;
 }
 </style>
