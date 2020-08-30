@@ -6,7 +6,10 @@
                 <div class="row">
                     <b-col md="auto">
                         <div class="image-container">
-                            <b-img crossorigin="anonymous" ref="displayImage" style="margin-top: 10px; width: 100%;" :src="getImgSrc" alt="Center image"></b-img>
+                            <!--<b-img crossorigin="anonymous" ref="displayImage" style="margin-top: 10px; width: 100%;" :src="getImgSrc" alt="Center image"></b-img>-->
+                            <video id="webcam" autoplay playsinline width="640" height="480"></video>
+                            <canvas id="canvas" class="d-none"></canvas>
+                            <audio id="snapSound" src="audio/snap.wav" preload="auto"></audio>
                         </div>
                     </b-col>
                 </div>
@@ -73,6 +76,7 @@ import axios from "axios";
 
 //import VueAxios from 'vue-axios';
 import "vue-awesome/icons";
+import Webcam from 'webcam-easy';
 // import VIcon from "vue-awesome/components/Icon";
 import {
     mapGetters
@@ -167,8 +171,6 @@ export default {
                             var index, len
                             for (index = 0, len = info.length; index < len; ++index) {
                                 var imPath =
-                                    response.data.projectDir +
-                                    response.data.folder +
                                     '/' +
                                     info[index].file
                                 this.images.push({
@@ -190,7 +192,7 @@ export default {
             //return true
         },
         deleteImage: function (index) {
-      
+
             console.log("Image has been deleted");
             console.log(index)
             console.log(this.images[index].fileName)
@@ -214,8 +216,6 @@ export default {
                         var index, len
                         for (index = 0, len = info.length; index < len; ++index) {
                             var imPath =
-                                response.data.projectDir +
-                                response.data.folder +
                                 '/' +
                                 info[index].file
                             this.images.push({
@@ -408,6 +408,19 @@ export default {
                 ":8080/stream?topic=/output/image_raw&type=ros_compressed";
 
         });
+
+        const webcamElement = document.getElementById('webcam');
+        const canvasElement = document.getElementById('canvas');
+        const snapSoundElement = document.getElementById('snapSound');
+        const webcam = new Webcam(webcamElement, 'user', canvasElement, snapSoundElement);
+
+        webcam.start()
+            .then(result => {
+                console.log("webcam started");
+            })
+            .catch(err => {
+                console.log(err);
+            });
 
         console.log("Started roslibjs");
     },
@@ -602,6 +615,7 @@ $primary-color: #007e4e;
         height: 30px;
     }
 }
+
 .display-panel {
     border-radius: 8px;
     background-color: #333;
@@ -610,6 +624,7 @@ $primary-color: #007e4e;
 
     .display-image {
         margin: 0;
+
         canvas {
             min-height: 180px;
             height: 180px;

@@ -298,7 +298,7 @@ import Blockly from "blockly";
 //import blocklyPython from 'node-blockly/python';
 
 var axiosInstance = axios.create({
-    baseURL: `${location.protocol}//${location.hostname}:3000`,
+    baseURL: `${location.protocol}//${location.hostname}:80`,
 });
 
 var axios_options = {
@@ -618,8 +618,7 @@ export default {
                         var index, len
                         for (index = 0, len = info.length; index < len; ++index) {
                             var imPath =
-                                response.data.projectDir +
-                                response.data.folder +
+         
                                 '/' +
                                 info[index].file
                             this.$refs.anotateForClassifyComponent.images.push({
@@ -667,8 +666,7 @@ export default {
                         console.log(info.length)
                         for (index = 0, len = info.length; index < len; ++index) {
                             var imPath =
-                                response.data.projectDir +
-                                response.data.folder +
+   
                                 '/' +
                                 info[index].file
                             this.$refs.anotateComponent.images.push({
@@ -720,8 +718,7 @@ export default {
                     var index, len
                     for (index = 0, len = info.length; index < len; ++index) {
                         var imPath =
-                            response.data.projectDir +
-                            response.data.folder +
+
                             '/' +
                             info[index].file
                         this.$refs.captureComponent.images.push({
@@ -746,7 +743,7 @@ export default {
 
                     });
                 } else {
-
+                    
                 }
             }
         },

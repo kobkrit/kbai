@@ -167,7 +167,7 @@ var axios_options = {
 };
 
 var axiosInstance = axios.create({
-    baseURL: `${location.protocol}//${location.hostname}:3000`,
+    baseURL: `${location.protocol}//${location.hostname}:80`,
 });
 
 import {

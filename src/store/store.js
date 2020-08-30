@@ -146,8 +146,6 @@ export default new Vuex.Store({
           var allImgs = []
           for (index = 0, len = info.length; index < len; ++index) {
             var imPath =
-              response.data.projectDir +
-              response.data.folder +
               '/' +
               info[index].file
             allImgs.push({
