@@ -150,7 +150,7 @@ var convert = require("xml-js");
 //const API_URL = "http://172.20.10.2:3000/getFiles";
 
 var axiosInstance = axios.create({
-    baseURL: `${location.protocol}//${location.hostname}:3000`,
+    baseURL: `${location.protocol}//${location.hostname}:80`,
 });
 
 export default {
@@ -381,15 +381,14 @@ export default {
                     spaces: 4,
                 };
                 var result = convert.json2xml(this.anotate, options);
-                var imPath =
-                    "/" + this.$store.getters.getProjectDir + "/" + this.imFolder + "/";
-                var xmlFileName =
-                    imPath + previous_selectedFile.replace(/\.[^/.]+$/, "") + ".xml";
+                var imPath = "/" + this.imFolder + "/";
+                var xmlFileName = previous_selectedFile.replace(/\.[^/.]+$/, "") + ".xml";
                 this.savedXmlFilename =
                     "Anotated file is saved as " +
                     previous_selectedFile.replace(/\.[^/.]+$/, "") +
                     ".xml";
-                //console.log(xmlFileName)
+                console.log(xmlFileName)
+                console.log(imPath)
                 //console.log(JSON.parse(this.annotate))
                 console.log(result);
 
@@ -427,10 +426,11 @@ export default {
             this.imSrc = this.images[index].file;
             this.selectedFile = this.images[index].fileName;
             this.imFolder = "images";
-            var imPath =
-                "/" + this.$store.getters.getProjectDir + "/" + this.imFolder + "/";
-            var xmlFileName =
-                imPath + this.selectedFile.replace(/\.[^/.]+$/, "") + ".xml";
+
+            
+            var imPath = "/" + this.imFolder + "/";
+            var xmlFileName = this.selectedFile.replace(/\.[^/.]+$/, "") + ".xml";
+
             console.log("xmlFileName = ");
             console.log(xmlFileName);
 
@@ -444,7 +444,8 @@ export default {
 
                         //console.log(JSON.stringify(jobj));
                         if (response.data.status === "OK") {
-                            var jobj = JSON.parse(response.data.data);
+                            var jobj = JSON.parse(JSON.stringify(response.data.data));
+                            console.log(JSON.stringify(jobj));
                             if (Array.isArray(jobj.annotation.object)) {
                                 console.log("it is an array")
 
