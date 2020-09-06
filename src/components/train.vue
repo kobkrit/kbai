@@ -41,7 +41,7 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 
 var axiosInstance = axios.create({
-  baseURL: `${location.protocol}//${location.hostname}:3000`,
+  baseURL: `${location.protocol}//${location.hostname}:80`,
 });
 
 export default {
@@ -111,46 +111,12 @@ export default {
       this.isDownloading = false;
     },
     onTrain: async function() {
-      // if (this.isTraining) {
-      //   return await this.stopTraining()
-      // }
-      this.loading = true;
-      this.isDone = false;
-      this.isTraining = false;
-      this.result = "";
-      const data = await this.prepareData();
-      this.result += `Successfully prepare data. <br />`;
-      this.result += `Uploading data ... <br />`;
-      let formData = new FormData();
-      var file = new File([data.data], "data.zip", { type: "application/zip" });
-      formData.append("file", file);
-      let vm = this;
-      axios
-        .post(`${this.url}/upload`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        })
-        .then(function(res) {
-          vm.result += `${res.data} <br />`;
-          vm.isTraining = true;
-          const polling = setInterval(async () => {
-            const res = await vm.checkRunning();
-            if (res.data === "True") {
-              const log = await vm.getLogs();
-              vm.logs = log.data.replace(/(?:\r\n|\r|\n)/g, "<br>");
-            } else {
-              vm.loading = false;
-              vm.isDone = true;
-              clearInterval(polling);
-            }
-          }, 15000);
-        })
-        .catch(function(e) {
-          console.error(e);
-          vm.result += `failed to upload data. <br />`;
-          vm.loading = false;
-        });
+            axiosInstance.post("/upload", {
+                projectpath: this.$store.state.projectDir
+            }).then((response) => {
+                console.log(response.data.status);
+
+            });
     },
   },
   directives: {},

@@ -23,6 +23,11 @@ def parseXmlToJson(xml):
 
   return response
 
+def list_paths(path):
+    directories = [x[1] for x in os.walk(path)]
+    non_empty_dirs = [x for x in directories if x] # filter out empty lists
+    return [item for subitem in non_empty_dirs for item in subitem] # flatten the list
+
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR) # template_folder='/Users/cake/Desktop/Projects/kidbrightAI/testVue/kidbrightai/dist')
 #run_with_ngrok(app)   #starts ngrok when the app is run
 @app.route("/")
@@ -164,6 +169,59 @@ def checkXmlFile():
         }
     return jsonify(res), 201
 
+@app.route('/imclassAnotaion', methods=['POST'])
+def imclassAnotaion():
+    req = request.json
+    dirname = os.path.join(STATIC_DIR, req["projectpath"], "imgclass", req["dirname"])
+    try:
+        os.mkdir(dirname)
+        res = {
+            'status': 'OK',
+        }
+    except OSError:
+        res = {
+            'status': 'FAIL',
+        }
+    return jsonify(res), 201
+
+
+@app.route('/getAnotaions', methods=['POST'])
+def getAnotaions():
+    req = request.json
+    dirname = os.path.join(STATIC_DIR, req["projectpath"], "imgclass")
+    try:
+        dds = list_paths(dirname)
+        print("get dds")
+        print(dds)
+        res = {
+            'classes': dds,
+            'status': 'OK'
+        }
+    except OSError:
+        res = {
+            'status': 'FAIL',
+        }
+    return jsonify(res), 201
+
+
+
+@app.route('/addClass', methods=['POST'])
+def addClass():
+    content = request.json
+    filePath = os.path.join(STATIC_DIR, content["projectpath"], "imclass.json")
+    print(filePath)
+    res = {
+        'status': 'OK'
+    }
+    return jsonify(res), 201
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    res = {
+        'status': 'OK'
+    }
+    return jsonify(res), 201
 
 @app.route('/putdata', methods=['POST'])
 def create_task():
