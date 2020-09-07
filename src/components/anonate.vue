@@ -42,7 +42,6 @@
 
                 </div>
 
-                
             </div>
         </div>
 
@@ -630,48 +629,49 @@ export default {
                     element.callback()
                 }
             }
+        }
+    },
+    mounted() {
+        console.log("Anotation")
+        this.images = this.$store.getters.getImages;
+        console.log(this.images)
+        this.projectDir = this.$store.getters.getProjectDir;
+    },
+    computed: {
+        ...mapGetters(["getProjectDir", "getImages"]),
+        drawBox() {
+            var sty =
+                "position: absolute;" +
+                "top: 0;" +
+                "left: 0;" +
+                "width: " +
+                this.anotationWidth +
+                "px;" +
+                "height: " +
+                this.anotationHeight +
+                "px;" +
+                "margin-top: " +
+                this.anotationY +
+                "px;" +
+                "margin-left: " +
+                this.anotationX +
+                "px;" +
+                "display: none;" +
+                "color: #FFF;" +
+                "display: block;" +
+                "background: rgba(0, 0, 0, .5);";
+            console.log(sty);
+
+            return sty;
         },
-        mounted() {
-            console.log("Anotation")
+
+        getImagesData() {
             this.images = this.$store.getters.getImages;
             console.log(this.images)
-            this.projectDir = this.$store.getters.getProjectDir;
+            return this.images
         },
-        computed: {
-            ...mapGetters(["getProjectDir", "getImages"]),
-            drawBox() {
-                var sty =
-                    "position: absolute;" +
-                    "top: 0;" +
-                    "left: 0;" +
-                    "width: " +
-                    this.anotationWidth +
-                    "px;" +
-                    "height: " +
-                    this.anotationHeight +
-                    "px;" +
-                    "margin-top: " +
-                    this.anotationY +
-                    "px;" +
-                    "margin-left: " +
-                    this.anotationX +
-                    "px;" +
-                    "display: none;" +
-                    "color: #FFF;" +
-                    "display: block;" +
-                    "background: rgba(0, 0, 0, .5);";
-                console.log(sty);
-
-                return sty;
-            },
-
-            getImagesData() {
-                this.images = this.$store.getters.getImages;
-                console.log(this.images)
-                return this.images
-            },
-        },
-    };
+    },
+}
 </script>
 
 <style lang="scss" scoped>

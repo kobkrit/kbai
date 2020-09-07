@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="125" height="48" viewBox="0 0 125 48">
+  <defs>
+    <filter id="Rectangle_34" x="0" y="0" width="125" height="48" filterUnits="userSpaceOnUse">
+      <feOffset input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="Group_115" data-name="Group 115" transform="translate(-54 -166)">
+    <g transform="matrix(1, 0, 0, 1, 54, 166)" filter="url(#Rectangle_34)">
+      <rect id="Rectangle_34-2" data-name="Rectangle 34" width="107" height="30" rx="15" transform="translate(9 9)" fill="#fff"/>
+    </g>
+    <text id="TRAINING" transform="translate(74 194)" fill="#06754b" font-size="11" font-family="ArialRoundedMTBold, Arial Rounded MT"><tspan x="0" y="0">TRAINING</tspan></text>
+    <g id="up-arrow" transform="translate(259.818 183.517) rotate(90)">
+      <g id="Group_33" data-name="Group 33" transform="translate(0 101.485)">
+        <path id="Path_89" data-name="Path 89" d="M13.155,107.653,7.2,101.7a.738.738,0,0,0-1.038,0L.213,107.647a.733.733,0,0,0,0,1.034l.438.438a.733.733,0,0,0,1.034,0l5-5,5,5a.733.733,0,0,0,1.034,0l.438-.438A.732.732,0,0,0,13.155,107.653Z" transform="translate(0 -101.485)" fill="#333"/>
+      </g>
+    </g>
+  </g>
+</svg>
