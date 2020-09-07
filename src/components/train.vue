@@ -115,6 +115,8 @@ export default {
                 projectpath: this.$store.state.projectDir
             }).then((response) => {
                 console.log(response.data.status);
+                this.isDone = true
+                
 
             });
     },

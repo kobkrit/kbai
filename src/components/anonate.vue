@@ -36,11 +36,13 @@
                 <div class="img"><img class="thumb" src="../assets/UI/png/Group 116.png" alt="" srcset=""></div>
                 <div class="img"><img class="thumb" src="../assets/UI/png/Group 116.png" alt="" srcset=""></div>
                 <div class="img"><img class="thumb" src="../assets/UI/png/Group 116.png" alt="" srcset=""></div> -->
-                <div :id="id" :class="{'img': true, 'active': imageActiveIndex === id }" v-for="(file, id) in images" :key="id" v-on:click="onSelect($event)">
-                   
-                        <img class="thumb" :src="file.file" alt="" srcset=""><span v-if="file.isAnnotated == 1" class="annotated-btn count">{{file.classCounts}}</span>
-                
+                <div :id="id" :class="{'img': true, 'active': imageActiveIndex === id }" v-for="(file, id) in images" :key="id" v-on:click="onSelect($event)" v-for-callback="{key: key, array: items, callback: callback_vfor}">
+
+                    <img class="thumb" :src="file.file" alt="" srcset=""><span v-if="file.isAnnotated == 1" class="annotated-btn count">{{file.classCounts}}</span>
+
                 </div>
+
+                
             </div>
         </div>
 
@@ -303,7 +305,6 @@ export default {
                 },
             });
             console.log(this.anotate.annotation.object);
-            
 
             axiosInstance
                 .post("/addClass", {
@@ -372,7 +373,7 @@ export default {
             var index = Number(targetId)
             this.imageActiveIndex = index
             var previous_selectedFile = this.selectedFile
-            
+
             if (this.anotate.annotation.object.length > 0) {
                 console.log("Save anotation file")
                 var options = {
@@ -427,7 +428,6 @@ export default {
             this.selectedFile = this.images[index].fileName;
             this.imFolder = "images";
 
-            
             var imPath = "/" + this.imFolder + "/";
             var xmlFileName = this.selectedFile.replace(/\.[^/.]+$/, "") + ".xml";
 
@@ -580,6 +580,9 @@ export default {
             this.anotationWidth = selectedObj.bndbox.xmax - selectedObj.bndbox.xmin
             this.anotationHeight = selectedObj.bndbox.ymax - selectedObj.bndbox.ymin
         },
+        callback_vfor() {
+            console.log('v-for loop finished')
+        },
         /*listFiles: function () {
                 while (this.images.length) {
                     this.images.pop();
@@ -608,48 +611,67 @@ export default {
             },*/
 
     },
-    directives: {},
-    mounted() {
-        console.log("Anotation")
-        this.images = this.$store.getters.getImages;
-        console.log(this.images)
-        this.projectDir = this.$store.getters.getProjectDir;
-    },
-    computed: {
-        ...mapGetters(["getProjectDir", "getImages"]),
-        drawBox() {
-            var sty =
-                "position: absolute;" +
-                "top: 0;" +
-                "left: 0;" +
-                "width: " +
-                this.anotationWidth +
-                "px;" +
-                "height: " +
-                this.anotationHeight +
-                "px;" +
-                "margin-top: " +
-                this.anotationY +
-                "px;" +
-                "margin-left: " +
-                this.anotationX +
-                "px;" +
-                "display: none;" +
-                "color: #FFF;" +
-                "display: block;" +
-                "background: rgba(0, 0, 0, .5);";
-            console.log(sty);
+    directives: {
+        forCallback(el, binding) {
+            let element = binding.value
+            var key = element.key
+            var len = 0
 
-            return sty;
+            if (Array.isArray(element.array)) {
+                len = element.array.length
+            } else if (typeof element.array === 'object') {
+                var keys = Object.keys(element.array)
+                key = keys.indexOf(key)
+                len = keys.length
+            }
+
+            if (key == len - 1) {
+                if (typeof element.callback === 'function') {
+                    element.callback()
+                }
+            }
         },
-
-        getImagesData() {
+        mounted() {
+            console.log("Anotation")
             this.images = this.$store.getters.getImages;
             console.log(this.images)
-            return this.images
+            this.projectDir = this.$store.getters.getProjectDir;
         },
-    },
-};
+        computed: {
+            ...mapGetters(["getProjectDir", "getImages"]),
+            drawBox() {
+                var sty =
+                    "position: absolute;" +
+                    "top: 0;" +
+                    "left: 0;" +
+                    "width: " +
+                    this.anotationWidth +
+                    "px;" +
+                    "height: " +
+                    this.anotationHeight +
+                    "px;" +
+                    "margin-top: " +
+                    this.anotationY +
+                    "px;" +
+                    "margin-left: " +
+                    this.anotationX +
+                    "px;" +
+                    "display: none;" +
+                    "color: #FFF;" +
+                    "display: block;" +
+                    "background: rgba(0, 0, 0, .5);";
+                console.log(sty);
+
+                return sty;
+            },
+
+            getImagesData() {
+                this.images = this.$store.getters.getImages;
+                console.log(this.images)
+                return this.images
+            },
+        },
+    };
 </script>
 
 <style lang="scss" scoped>
@@ -1028,15 +1050,17 @@ body {
 .outer-wrap {
     overflow: hidden;
 }
+
 .main-panel {
     width: calc(100% - 300px);
 }
+
 .img-slider {
     display: -webkit-box;
     width: 100%;
     overflow-x: scroll;
     height: 180px;
-    position:relative;
+    position: relative;
     padding-top: 6px;
     margin: 20px;
 
@@ -1078,6 +1102,7 @@ body {
             object-fit: cover;
         }
     }
+
     .annotated-btn {
         position: absolute;
         right: 10px;
