@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["about~3abf5439"],{bb51:function(n,t,a){"use strict";a.r(t);var e=function(){var n=this,t=n.$createElement,a=n._self._c||t;return a("div",{attrs:{id:"app"}},[a("Main",{attrs:{msg:"Welcome to Your Vue.js App"}})],1)},o=[],p=a("5456"),s={name:"app",components:{Main:p["a"]}},u=s,r=a("2877"),c=Object(r["a"])(u,e,o,!1,null,null,null);t["default"]=c.exports}}]);
-//# sourceMappingURL=about~3abf5439.b35480de.js.map
