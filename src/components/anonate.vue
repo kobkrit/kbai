@@ -36,7 +36,7 @@
                 <div class="img"><img class="thumb" src="../assets/UI/png/Group 116.png" alt="" srcset=""></div>
                 <div class="img"><img class="thumb" src="../assets/UI/png/Group 116.png" alt="" srcset=""></div>
                 <div class="img"><img class="thumb" src="../assets/UI/png/Group 116.png" alt="" srcset=""></div> -->
-                <div :id="id" :class="{'img': true, 'active': imageActiveIndex === id }" v-for="(file, id) in images" :key="id" v-on:click="onSelect($event)" v-for-callback="{key: key, array: items, callback: callback_vfor}">
+                <div :id="id" :class="{'img': true, 'active': imageActiveIndex === id }" v-for="(file, id) in images" :key="id" v-for-callback="{key: key, array: items, callback: callback_vfor}" v-on:click="onSelect($event)">
 
                     <img class="thumb" :src="file.file" alt="" srcset=""><span v-if="file.isAnnotated == 1" class="annotated-btn count">{{file.classCounts}}</span>
 
@@ -623,6 +623,8 @@ export default {
                 key = keys.indexOf(key)
                 len = keys.length
             }
+            console.log("Callback")
+            console.log(key)
 
             if (key == len - 1) {
                 if (typeof element.callback === 'function') {
