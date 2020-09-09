@@ -7,9 +7,10 @@
                     <b-col md="auto">
                         <div class="image-container">
                             <!--<b-img crossorigin="anonymous" ref="displayImage" style="margin-top: 10px; width: 100%;" :src="getImgSrc" alt="Center image"></b-img>-->
-                            <video id="webcam" autoplay playsinline width="640" height="480"></video>
-                            <canvas id="canvas" class="d-none"></canvas>
-                            <audio id="snapSound" src="audio/snap.wav" preload="auto"></audio>
+                            <!-- <video id="webcam" autoplay playsinline width="640" height="480"></video>
+                            <canvas id="canvas" class="d-none"></canvas> -->
+                            <Camera ref="camera" width="640" height="480" />
+                            <!-- <audio id="snapSound" src="audio/snap.wav" preload="auto"></audio> -->
                         </div>
                     </b-col>
                 </div>
@@ -41,7 +42,7 @@
         </div>
         <div class="side-panel" style="width:300px;">
             <div class="center">
-                <img @click="getImage" v-on:click.prevent class="camera-btn op-btn" src="../assets/UI/png/Group 116.png" height="128" alt="" srcset="" />
+                <img @click="takePhoto" v-on:click.prevent class="camera-btn op-btn" src="../assets/UI/png/Group 116.png" height="128" alt="" srcset="" />
                 <!-- <div class="next op-btn">
                     <span>ANNOTATE</span>
                     <span class="ico"><img src="../assets/UI/svg/up-arrow.svg" alt="" srcset="" /></span>
@@ -76,13 +77,16 @@ import axios from "axios";
 
 //import VueAxios from 'vue-axios';
 import "vue-awesome/icons";
-import Webcam from 'webcam-easy';
+// import Webcam from 'webcam-easy';
 // import VIcon from "vue-awesome/components/Icon";
 import {
     mapGetters
 } from "vuex";
 
 // var convert = require("xml-js");
+import Camera from "vue-html5-camera"
+
+
 
 var axios_options = {
     proxy: {
@@ -120,13 +124,62 @@ export default {
             nameState: null,
             images: [],
             imageActiveIndex: undefined,
-            showCapturing: false
+            showCapturing: false,
+            src: ""
         };
     },
     methods: {
         doNothing: function () {},
         createProject: function () {
             this.$store.dispatch("setProjectDir", "myProject");
+        },
+        takePhoto: async function(){
+            console.log("takePhoto");
+            this.src = this.$refs.camera.click();
+            console.log(this.src);
+            await axiosInstance
+                .post('/upload/image', {
+                    path: this.$store.state.projectDir,
+                    base64image: this.src,
+                })
+                .then((response) => {
+                    console.log(response.data)
+                    if (response.data.status === 'OK') {
+                        console.log('File is OK!!!!')
+                        this.showCapturing = false
+                        this.$refs['capture-modal'].hide()
+
+                        //this.$refs['saveAnotation'].show()
+                        axiosInstance.post("/getFiles", {
+                            path: this.$store.state.projectDir
+                        }).then((response) => {
+                            console.log(response.data.files);
+                            while (this.images.length) {
+                                this.images.pop();
+                            }
+                            var info = response.data.files
+                            var index, len
+                            for (index = 0, len = info.length; index < len; ++index) {
+                                var imPath =
+                                    '/' +
+                                    info[index].file
+                                this.images.push({
+                                    fileName: info[index].file,
+                                    file: imPath,
+                                    id: info[index].id,
+                                })
+                            }
+
+                        });
+                        //return true;
+                    }
+                })
+                .catch((error) => {
+                    console.log(error)
+                    //return false;
+                }).this
+
+            //return true
         },
         getImage: async function () {
             //var c = this.$refs.myCanvas;
@@ -409,18 +462,18 @@ export default {
 
         });
 
-        const webcamElement = document.getElementById('webcam');
-        const canvasElement = document.getElementById('canvas');
-        const snapSoundElement = document.getElementById('snapSound');
-        const webcam = new Webcam(webcamElement, 'user', canvasElement, snapSoundElement);
+        // const webcamElement = document.getElementById('webcam');
+        // const canvasElement = document.getElementById('canvas');
+        // const snapSoundElement = document.getElementById('snapSound');
+        // const webcam = new Webcam(webcamElement, 'user', canvasElement, snapSoundElement);
 
-        webcam.start()
-            .then(result => {
-                console.log("webcam started");
-            })
-            .catch(err => {
-                console.log(err);
-            });
+        // webcam.start()
+        //     .then(result => {
+        //         console.log("webcam started");
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //     });
 
         console.log("Started roslibjs");
     },
@@ -433,6 +486,9 @@ export default {
         //    return this.$store.state.projectDir
         //}
     },
+    components:{
+        Camera
+    }
 };
 </script>
 

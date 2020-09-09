@@ -8,21 +8,16 @@
       </b-input-group-prepend>
       <b-form-input class="input-url" v-model="url" placeholder="Put Google Colab URL here . . ."></b-form-input>
       <b-input-group-append>
-        <button
+        <button 
           class="btn base-btn"
-          :disabled="trainable"
           @click="onTrain()"
-        >
-          <b-spinner v-if="loading" small type="grow"></b-spinner
-          >{{ isTraining ? "Train" : "Train" }}
+        >Train
         </button>
-        <button
+        <button 
           class="btn base-btn"
-          :disabled="!downloadable"
           @click="downloadAndExtract"
         >
-          <b-spinner v-if="isDownloading" small type="grow"></b-spinner
-          >Download
+        Test Detection
         </button>
       </b-input-group-append>
     </b-input-group>
@@ -33,7 +28,19 @@
         <div v-html="logs" />
       </div>
     </b-card>
+      
+
+
+
+  	 <b-modal id="myModalId" size="xl" title="Detected image" ok-only ok-variant="secondary" ok-title="Dismiss" >
+			<img :src="imageData" />
+	 </b-modal>
+
+
   </div>
+
+
+  
 </template>
 
 <script>
@@ -43,6 +50,11 @@ import { mapGetters } from "vuex";
 var axiosInstance = axios.create({
   baseURL: `${location.protocol}//${location.hostname}:80`,
 });
+
+
+
+
+
 
 export default {
   name: "Training",
@@ -61,6 +73,8 @@ export default {
       isDone: false,
       isTraining: false,
       isDownloading: false,
+      imageData : null ,
+      showModal: false,
     };
   },
   methods: {
@@ -92,24 +106,54 @@ export default {
     getLogs: function() {
       return axios.get(`${this.url}/train/log`);
     },
-    downloadAndExtract: async function() {
-      this.isDownloading = true;
-      const model = await axios.get(`${this.url}/download`, {
-        responseType: "arraybuffer",
-      });
-      var file = new File([model.data], "model.tar.gz", {
-        type: "application/gzip",
-      });
-      let formData = new FormData();
-      formData.append("file", file);
-      formData.append("path", this.getProjectDir);
-      await axiosInstance.post("/extractFile", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      this.isDownloading = false;
+
+
+   
+    downloadAndExtract:  function() {
+      console.log("Now loading!!!!")
+            axiosInstance.post("/detect", {
+                projectpath: this.$store.state.projectDir,
+                filename : "1569404476961.png"
+            }).then((response) => {
+    
+      /*       let blob = new Blob(
+        [response.data], 
+        { type: response.headers['content-type'] }
+      ) */
+
+            //const urlCreator = window.URL || window.webkitURL;
+            //var b64Response = btoa(unescape(encodeURIComponent(response.data)))
+            var str = response.data.ImageBytes
+
+        
+             
+              //this.imageData = url.createObjectURL(blob);
+
+
+              
+                var base64data = str;    
+                //this.imageData = base64data          
+                console.log(base64data);
+                   //console.log(this.imageData)
+                   this.imageData = 'data:image/png;base64,' + base64data;
+              console.log("get response")
+              this.showModal = true
+              this.$root.$emit('bv::show::modal', 'myModalId')
+         
+           
+            
+          
+            //this.imageData = 'data:image/png;base64,' + b64Response;
+            //this.imageData = urlCreator.createObjectURL(blob);
+
+            //console.log(this.imageData)
+       
+            //return this.imageData 
+
+            });
     },
+
+
     onTrain: async function() {
             axiosInstance.post("/upload", {
                 projectpath: this.$store.state.projectDir
@@ -122,7 +166,10 @@ export default {
     },
   },
   directives: {},
-  mounted() {},
+  mounted() {
+      
+
+  },
   updated() {
     var logsBox = this.$refs.logsBox;
     logsBox.scrollTop = logsBox.scrollHeight;
@@ -135,6 +182,8 @@ export default {
       "getProjectStatus",
       "getCmdVel",
     ]),
+
+
     trainable: function() {
       const regex = new RegExp(
         /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/
